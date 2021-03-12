@@ -1,10 +1,10 @@
-#3DCEMA#
+# 3DCEMA
 This is the code of paper **Gene Regulatory Network Inference using
 3D Convolutional Neural Network**. 3D Co-Expression Matrix Analysis
 (3DCEMA) predicts regulatory relationships by classifying 3D co-expression matrices of gene triplets using a 3D
 convolutional neural network.
 
-##Training##
+## Training
 To train a model based on a dataset, please run 'training.py'. The parameters are listed below.
 
 --data\_directory: The name of the folder containing 'expressionData.csv' and 'refNetwork.csv'.<br/>
@@ -23,7 +23,7 @@ training.py
 
 This command will automatically create 3000 training matrices in directory  'scRNA-seq-datasets\mESC\second_100\dataset\'. It will create a trained model named 'mESC100t' in the directory 'trained models\'.
 
-##Inferring
+## Inferring
 To infer a GRN based on a dataset, please run 'inferring.py'. The parameters are listed below.
 
 --data\_directory: The folder name containing 'expressionData.csv' and 'refNetwork.csv'.<br/>
