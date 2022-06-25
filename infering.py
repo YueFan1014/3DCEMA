@@ -116,7 +116,7 @@ def infering_real(path, model_name, batch_size=100):
     gene_num = len(genes)
     cell_size = normalized_matrix.shape[0]
     graph = nx.DiGraph()
-    file = open(path+'rankedEdges.csv', 'w')
+    file = open(path+args.model_name+'rankedEdges.csv', 'w')
     file.write('Gene1,Gene2,EdgeWeight\n')
 
     matrix_batch = []
@@ -151,10 +151,11 @@ def infering_real(path, model_name, batch_size=100):
                 outputs = net(inputs.float())
                 _, predicted = outputs.max(1)
                 #print('predicted')
-                #print(predicted)
+                #print(outputs)
                 for i in range(num):
                     gene_x, gene_y = name_batch[i]
                     text = gene_x + ',' + gene_y + ',' + str(outputs[i, 1].item() - outputs[i, 0].item()) + '\n'
+                    #text = gene_x + ',' + gene_y + ',' + str(predicted[i].item()) + '\n'
                     file.write(text)
                 num = 0
                 matrix_batch = []

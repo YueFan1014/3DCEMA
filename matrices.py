@@ -109,8 +109,8 @@ def create_real_data_training_matrices(path, k_limit):
                 classes[0].append((gene_x, gene_y))
             else:
                 classes[1].append((gene_x, gene_y))
-    label_zero_num = m.ceil(k_limit*0.8)
-    label_one_num = m.ceil(k_limit*0.2)
+    label_zero_num = min(m.ceil(k_limit*0.7), len(classes[0]))
+    label_one_num = min(m.ceil(k_limit*0.3), len(classes[1]))
 
     class_zero = rd.sample(classes[0], label_zero_num)
     class_one = rd.sample(classes[1], label_one_num)
@@ -136,4 +136,3 @@ def create_real_data_training_matrices(path, k_limit):
             msg = str(label) + ' ' + gene_x + '_' + gene_y + '.npy' + '\n'
             data_file.write(msg)
     data_file.close()
-

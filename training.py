@@ -15,21 +15,26 @@ import datetime
 parser = argparse.ArgumentParser(description='3DCEMA Training')
 parser.add_argument('--learning_rate', default=0.01, type=float, help='learning rate')
 parser.add_argument('--num_of_classes', default=3, type=int, help='num of classes')
-parser.add_argument('--max_limit', default=10000, type=int, help='limit of matrices')
-parser.add_argument('--data_directory', type=str, help='training directory')
+parser.add_argument('--max_limit', default=5000, type=int, help='limit of matrices')
+parser.add_argument('--training_directory', type=str, help='training directory')
+parser.add_argument('--testing_directory', type=str, help='testing directory')
 parser.add_argument('--model_name', type=str, help='model name')
 
 start = datetime.datetime.now()
 args = parser.parse_args()
-print(args.data_directory)
-bin_normalization.build_bin_normalized_matrix(args.data_directory)
+print('Training: ', args.training_directory)
+print('Testing: ', args.testing_directory)
+bin_normalization.build_bin_normalized_matrix(args.training_directory)
+bin_normalization.build_bin_normalized_matrix(args.testing_directory)
 if args.num_of_classes == 3:
-    matrices.create_in_silico_training_matrices(path=args.data_directory, k_limit=args.max_limit)
+    matrices.create_in_silico_training_matrices(path=args.training_directory, k_limit=args.max_limit)
+    matrices.create_in_silico_training_matrices(path=args.testing_directory, k_limit=args.max_limit)
 else:
-    matrices.create_real_data_training_matrices(path=args.data_directory, k_limit=args.max_limit)
-training_set = dataset.DataSet(root=args.data_directory+r'dataset\\')
+    matrices.create_real_data_training_matrices(path=args.training_directory, k_limit=args.max_limit)
+    matrices.create_real_data_training_matrices(path=args.testing_directory, k_limit=args.max_limit)
+training_set = dataset.DataSet(root=args.training_directory+r'dataset\\')
 trainloader = torch.utils.data.DataLoader(training_set, batch_size=100, shuffle=True, num_workers=0)
-testing_set = dataset.DataSet(root=args.data_directory+r'dataset\\')
+testing_set = dataset.DataSet(root=args.testing_directory+r'dataset\\')
 testloader = torch.utils.data.DataLoader(testing_set, batch_size=100, shuffle=False, num_workers=0)
 end = datetime.datetime.now()
 print(end-start)
@@ -44,7 +49,7 @@ if device == 'cuda':
     net = torch.nn.DataParallel(net)
     cudnn.benchmark = True
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=5e-4)
+optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=1e-4)
 
 
 def train(epoch):
@@ -87,10 +92,10 @@ def test(epoch):
             #print(targets)
             #print('predicted')
             #print(predicted)
-
     acc = 100.*correct/total
-
     print(acc)
+    if not os.path.isdir('trained_models'):
+        os.mkdir('trained_models')
     if acc > best_acc:
         print('Saving..')
         state = {
@@ -98,14 +103,12 @@ def test(epoch):
             'acc': acc,
             'epoch': epoch,
         }
-        if not os.path.isdir('trained_models'):
-            os.mkdir('trained_models')
-        torch.save(state, r'trained_models\\'+args.model_name)
+        torch.save(state, r'trained_models\\' + args.model_name)
         best_acc = acc
 
 
 start = datetime.datetime.now()
-for epoch in range(start_epoch, start_epoch+10):
+for epoch in range(start_epoch, start_epoch+200):
     train(epoch)
     test(epoch)
 end = datetime.datetime.now()
